@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">Voice Reminders</string>
+    <string name="start_speaking">Tap to Start Speaking</string>
+    <string name="mic_prompt">Speak Now</string>
+    <string name="get_event">Please tell me the event and its time</string>
+    <string name="analyze">Analyzing...</string>
+    <string name="api_error">Sorry, unexpected error occurred, please make sure that you\'re connected to the internet and try again</string>
+    <string name="api_wrong_format">error analyzing the data, try again and make sure that the phrase contains an event AND associated time</string>
+</resources>
