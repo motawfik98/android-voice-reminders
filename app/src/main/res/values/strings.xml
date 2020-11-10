@@ -6,4 +6,6 @@
     <string name="analyze">Analyzing...</string>
     <string name="api_error">Sorry, unexpected error occurred, please make sure that you\'re connected to the internet and try again</string>
     <string name="api_wrong_format">error analyzing the data, try again and make sure that the phrase contains an event AND associated time</string>
+    <string name="channel_name">ONLY_CHANNEL</string>
+    <string name="channel_description">Available test channel</string>
 </resources>

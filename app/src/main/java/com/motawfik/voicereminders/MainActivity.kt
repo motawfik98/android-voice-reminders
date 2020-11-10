@@ -1,7 +1,8 @@
 package com.motawfik.voicereminders
 
-import android.app.Activity
+import android.app.*
 import android.content.ActivityNotFoundException
+import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
@@ -29,6 +30,8 @@ class MainActivity : AppCompatActivity() {
     private var listenAfter = false
     private var selectedTime: String = ""
     private var title: String = ""
+    private val CHANNEL_ID = "ONLY_CHANNEL"
+    private var notificationID = 1
     private val progressListener = object : UtteranceProgressListener() {
         @RequiresApi(Build.VERSION_CODES.O)
         override fun onDone(p0: String?) {
@@ -47,6 +50,7 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        createNotificationChannel()
         textToSpeech = TextToSpeech(this, TextToSpeech.OnInitListener { status ->
             if (status == TextToSpeech.SUCCESS) {
                 textToSpeech!!.language = Locale.US
@@ -149,12 +153,38 @@ class MainActivity : AppCompatActivity() {
         if (selectedTime == "" || title == "")
             return
         val localDateTime = LocalDateTime.parse(selectedTime);
+        val notificationTime = localDateTime.minusDays(1).atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
         val time = localDateTime.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
         val intent = Intent(Intent.ACTION_EDIT)
         intent.type = "vnd.android.cursor.item/event"
         intent.putExtra("beginTime", time)
         intent.putExtra("title", title)
+        val alarmManager = this.getSystemService(Context.ALARM_SERVICE) as? AlarmManager
+
+        val alarmIntent = Intent(this, NotificationBroadcastReceiver::class.java).let { innerIntent ->
+            innerIntent.putExtra("EVENT_TITLE", title)
+            innerIntent.putExtra("NOTIFICATION_ID", notificationID++)
+            PendingIntent.getBroadcast(this, notificationID, innerIntent, 0)
+        }
+        alarmManager!!.set(AlarmManager.RTC_WAKEUP, notificationTime, alarmIntent)
         startActivity(intent)
+    }
+
+    private fun createNotificationChannel() {
+        // Create the NotificationChannel, but only on API 26+ because
+        // the NotificationChannel class is new and not in the support library
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val name = getString(R.string.channel_name)
+            val descriptionText = getString(R.string.channel_description)
+            val importance = NotificationManager.IMPORTANCE_DEFAULT
+            val channel = NotificationChannel(CHANNEL_ID, name, importance).apply {
+                description = descriptionText
+            }
+            // Register the channel with the system
+            val notificationManager: NotificationManager =
+                getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            notificationManager.createNotificationChannel(channel)
+        }
     }
 
     override fun onPause() {
