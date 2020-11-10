@@ -122,6 +122,8 @@ class MainActivity : AppCompatActivity() {
                                     Log.d("JSON", e.printStackTrace().toString())
                                     e.printStackTrace()
                                     txtApi.text = getString(R.string.api_wrong_format)
+                                    speak(txtApi.text.toString())
+                                    listenAfter = true
                                 }
 
                             },
